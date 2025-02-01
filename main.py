@@ -25,7 +25,7 @@ while running:
             running = False
 
     screen.fill("gray")
-    pygame.draw.rect(screen, "black", (round(SCREEN_WIDTH/16), round(3 * SCREEN_HEIGHT/32), round(7 * SCREEN_WIDTH / 8), round(7 * SCREEN_HEIGHT / 8)))
+    pygame.draw.rect(screen, "lime", (round(SCREEN_WIDTH/16), round(3 * SCREEN_HEIGHT/32), round(7 * SCREEN_WIDTH / 8), round(7 * SCREEN_HEIGHT / 8)))
     
     screen.blit(logo_img, (0, 0))
 

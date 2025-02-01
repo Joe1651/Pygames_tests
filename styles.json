@@ -13,5 +13,17 @@
             "hovered_bg": "red",
             "selected_bg": "green"
         }
+    },
+    "@build_tiles.tool_tip.text_box":
+    {
+        "colors":
+        {
+            "dark_bg": "blue"
+        },
+        "misc":
+        {
+            "shape": "rounded_rectangle",
+            "text_horiz_alignment": "center"
+        }
     }
 }
