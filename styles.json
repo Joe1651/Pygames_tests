@@ -1,0 +1,17 @@
+{
+    "@build_tiles": 
+    {
+        "images": 
+        {
+            "normal_image": {
+                "path": "road.png"
+            }
+        },
+        "colors":
+        {
+            "normal_bg": "gray",
+            "hovered_bg": "red",
+            "selected_bg": "green"
+        }
+    }
+}
