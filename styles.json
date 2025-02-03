@@ -25,5 +25,42 @@
             "shape": "rounded_rectangle",
             "text_horiz_alignment": "center"
         }
+    },
+    "#Custom_Window":
+    {
+        "colors":
+        {
+            "dark_bg": "orange",
+            "normal_border": "green"
+        },
+        "misc":
+        {
+            "shape": "rounded_rectangle",
+            "shape_corner_radius": "5"
+        }
+    },
+    "#Custom_Window.#title_bar":
+    {
+        "colors":
+        {
+            "normal_bg": "gray"
+        },
+        "misc":
+        {
+            "shape": "rounded_rectangle",
+            "shape_corner_radius": "5, 0, 0, 0" 
+        }
+    },
+    "#Custom_Window.#close_button":
+    {
+        "colors":
+        {
+            "normal_bg": "gray"
+        },
+        "misc":
+        {
+            "shape": "rounded_rectangle",
+            "shape_corner_radius": "0, 5, 0, 0" 
+        }
     }
 }
