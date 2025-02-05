@@ -56,28 +56,22 @@ class Circulab():
         self.vertical_scroll = 0
         self.horizontal_scroll = 0
         self.running = True
+
+        # Data
+        self.tuiles = pygame.sprite.Group()
+        self.world_data = []
+        for row in range(self.ROWS):
+            r = [0] * self.COLUMNS
+            self.world_data.append(r)
     
     def run(self):
         while self.running:
             # FPS Capping
             time_delta = self.clock.tick(60)/1000
 
-            #scroll la grip
-            if self.horizontal_scroll == 1 and self.scrollx < (self.COLUMNS * self.TILE_SIZE) - self.WIDTH:
-                self.scrollx += 5 * self.scroll_speed
-            elif self.horizontal_scroll == -1 and self.scrollx > 0:
-                self.scrollx -= 5 * self.scroll_speed
-            
-            if self.vertical_scroll == 1 and self.scrolly < (self.ROWS * self.TILE_SIZE) - self.HEIGHT:  # Descend l'écran
-                self.scrolly += 5 * self.scroll_speed
-            elif self.vertical_scroll == -1 and self.scrolly > 0:  # Monte l'écran
-                self.scrolly -= 5 * self.scroll_speed
-
-            #get mouse position
-            pos = pygame.mouse.get_pos()
-            x = (pos[0] + self.scrollx) // self.TILE_SIZE
-            y = (pos[1] + self.scrolly) // self.TILE_SIZE
-            print(f"({x} | {y})")
+            # Logic
+            self.get_pos() ## TODOOOOO
+            self.change_scroll()
 
             # Vérifie si le joueur clique sur le "X"
             for event in pygame.event.get():
@@ -118,9 +112,26 @@ class Circulab():
 
             # Remplit le fond de couleur verte
             self.screen.fill(self.GREY)
-            pygame.draw.rect(self.screen, self.BLUE_GREY, (x * self.TILE_SIZE - self.scrollx, y * self.TILE_SIZE - self.scrolly, self.TILE_SIZE, self.TILE_SIZE))
-            self.draw_text(f"X: {int(x)} | Y: {int(y)}", self.font, self.WHITE, pos[0], pos[1]-self.TILE_SIZE/2)
-            self.draw_grid()
+
+            # Dessine les tuiles            
+            for y, row in enumerate(self.world_data):
+                for x, tile in enumerate(row):
+                    if tile != 0:
+                        red_rect = pygame.Rect(x * self.TILE_SIZE - self.scrollx, y * self.TILE_SIZE - self.scrolly, self.TILE_SIZE, self.TILE_SIZE)
+                        pygame.draw.rect(self.screen, self.GREEN, red_rect)  
+
+            # Dessine la grille
+            self.draw_grid()    
+            
+            #get mouse position
+            pos = pygame.mouse.get_pos()
+            x_pos = (pos[0] + self.scrollx) // self.TILE_SIZE
+            y_pos = (pos[1] + self.scrolly) // self.TILE_SIZE
+            print(f"({x} | {y})")
+
+            # Dessine les éléments du GUI
+            pygame.draw.rect(self.screen, self.BLUE_GREY, (x_pos * self.TILE_SIZE - self.scrollx, y_pos * self.TILE_SIZE - self.scrolly, self.TILE_SIZE, self.TILE_SIZE))
+            self.draw_text(f"X: {int(x_pos)} | Y: {int(y_pos)}", self.font, self.WHITE, pos[0], pos[1]-self.TILE_SIZE/2) 
 
             # Affiche le logo
             self.screen.blit(self.logo, (0, 0))    
@@ -132,6 +143,18 @@ class Circulab():
     
         pygame.quit()
     
+    def change_scroll(self):
+        #scroll la grip
+        if self.horizontal_scroll == 1 and self.scrollx < (self.COLUMNS * self.TILE_SIZE) - self.WIDTH:
+            self.scrollx += 5 * self.scroll_speed
+        elif self.horizontal_scroll == -1 and self.scrollx > 0:
+            self.scrollx -= 5 * self.scroll_speed
+        
+        if self.vertical_scroll == 1 and self.scrolly < (self.ROWS * self.TILE_SIZE) - self.HEIGHT:  # Descend l'écran
+            self.scrolly += 5 * self.scroll_speed
+        elif self.vertical_scroll == -1 and self.scrolly > 0:  # Monte l'écran
+            self.scrolly -= 5 * self.scroll_speed
+
     def draw_top_UI(self):
         self.tool_bar_window = pygame_gui.elements.UIWindow(
             rect=pygame.Rect((self.WIDTH - self.TOOL_BAR_WIDTH, 0), (self.TOOL_BAR_WIDTH, self.TOOL_BAR_HEIGHT)), 
