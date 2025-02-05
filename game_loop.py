@@ -103,12 +103,16 @@ class Circulab():
                         self.vertical_scroll = -1
                     if event.key == pygame.K_DOWN:
                         self.vertical_scroll = 1
+                    if event.key == pygame.K_RSHIFT or event.key == pygame.K_LSHIFT:
+                        self.scroll_speed = 5
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                         self.horizontal_scroll = 0
                     if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
                         self.vertical_scroll = 0
+                    if event.key == pygame.K_RSHIFT or event.key == pygame.K_LSHIFT:
+                        self.scroll_speed = 1
 
                 self.manager.process_events(event)
 
