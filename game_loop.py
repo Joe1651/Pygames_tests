@@ -1,5 +1,6 @@
 import pygame
 import pygame_gui
+from tuile import Tuile
 
 class Circulab():
     def __init__(self, height: int = 720, width: int = 1280):
@@ -9,6 +10,9 @@ class Circulab():
 
         # Load Images
         self.logo = pygame.image.load("logo.png")
+
+        # Load Fonts
+        self.font = pygame.font.Font("freesansbold.ttf", 32)
 
         # Color palette
         self.BLACK = "#040f0f"
@@ -43,12 +47,37 @@ class Circulab():
         self.clock = pygame.time.Clock()
 
         # Variable de jeu
+        self.ROWS = 150
+        self.COLUMNS = 150
+        self.TILE_SIZE = 64
+        self.scrollx = (self.COLUMNS * self.TILE_SIZE) / 2  # Set le scroll x au milieu
+        self.scrolly = (self.ROWS * self.TILE_SIZE) / 2  # Set le scroll y au milieu
+        self.scroll_speed = 1
+        self.vertical_scroll = 0
+        self.horizontal_scroll = 0
         self.running = True
     
     def run(self):
         while self.running:
             # FPS Capping
             time_delta = self.clock.tick(60)/1000
+
+            #scroll la grip
+            if self.horizontal_scroll == 1 and self.scrollx < (self.COLUMNS * self.TILE_SIZE) - self.WIDTH:
+                self.scrollx += 5 * self.scroll_speed
+            elif self.horizontal_scroll == -1 and self.scrollx > 0:
+                self.scrollx -= 5 * self.scroll_speed
+            
+            if self.vertical_scroll == 1 and self.scrolly < (self.ROWS * self.TILE_SIZE) - self.HEIGHT:  # Descend l'écran
+                self.scrolly += 5 * self.scroll_speed
+            elif self.vertical_scroll == -1 and self.scrolly > 0:  # Monte l'écran
+                self.scrolly -= 5 * self.scroll_speed
+
+            #get mouse position
+            pos = pygame.mouse.get_pos()
+            x = (pos[0] + self.scrollx) // self.TILE_SIZE
+            y = (pos[1] + self.scrolly) // self.TILE_SIZE
+            print(f"({x} | {y})")
 
             # Vérifie si le joueur clique sur le "X"
             for event in pygame.event.get():
@@ -64,11 +93,30 @@ class Circulab():
                     elif btn.is_selected:
                         btn.unselect()
                         continue
+                
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_LEFT:
+                        self.horizontal_scroll = -1
+                    if event.key == pygame.K_RIGHT:
+                        self.horizontal_scroll = 1
+                    if event.key == pygame.K_UP:
+                        self.vertical_scroll = -1
+                    if event.key == pygame.K_DOWN:
+                        self.vertical_scroll = 1
+
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                        self.horizontal_scroll = 0
+                    if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
+                        self.vertical_scroll = 0
 
                 self.manager.process_events(event)
 
             # Remplit le fond de couleur verte
             self.screen.fill(self.GREY)
+            pygame.draw.rect(self.screen, self.BLUE_GREY, (x * self.TILE_SIZE - self.scrollx, y * self.TILE_SIZE - self.scrolly, self.TILE_SIZE, self.TILE_SIZE))
+            self.draw_text(f"X: {int(x)} | Y: {int(y)}", self.font, self.WHITE, pos[0], pos[1]-self.TILE_SIZE/2)
+            self.draw_grid()
 
             # Affiche le logo
             self.screen.blit(self.logo, (0, 0))    
@@ -104,10 +152,21 @@ class Circulab():
             
             self.tool_bar_btns.add(new_btn)
     
+    def draw_text(self, text, font, text_col, x, y):
+        img = font.render(text, True, text_col)
+        img_rect = img.get_rect()
+        img_rect.center = (x, y)
+        self.screen.blit(img, img_rect)
+
     def unselect_all_btns(self):
         for btn in self.tool_bar_btns:
             btn.unselect()
 
+    def draw_grid(self):
+        for c in range(self.COLUMNS + 1):
+            pygame.draw.line(self.screen, self.WHITE, (c * self.TILE_SIZE - self.scrollx, 0), (c * self.TILE_SIZE - self.scrollx, self.HEIGHT))
+        for c in range(self.ROWS + 1):
+            pygame.draw.line(self.screen, self.WHITE, (0, c * self.TILE_SIZE - self.scrolly), (self.WIDTH, c * self.TILE_SIZE - self.scrolly))
 
 
 game = Circulab()
