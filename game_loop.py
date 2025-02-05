@@ -49,7 +49,7 @@ class Circulab():
         # Variable de jeu
         self.ROWS = 150
         self.COLUMNS = 150
-        self.TILE_SIZE = 64
+        self.TILE_SIZE = 50
         self.scrollx = (self.COLUMNS * self.TILE_SIZE) / 2  # Set le scroll x au milieu
         self.scrolly = (self.ROWS * self.TILE_SIZE) / 2  # Set le scroll y au milieu
         self.scroll_speed = 1
@@ -57,10 +57,15 @@ class Circulab():
         self.horizontal_scroll = 0
         self.running = True
 
+        # Position de la souris
+        self.pos = [0, 0]
+        self.x_pos = self.pos[0]
+        self.y_pos = self.pos[1]
+
         # Data
         self.tuiles = pygame.sprite.Group()
         self.world_data = []
-        for row in range(self.ROWS):
+        for _ in range(self.ROWS):
             r = [0] * self.COLUMNS
             self.world_data.append(r)
     
@@ -70,68 +75,23 @@ class Circulab():
             time_delta = self.clock.tick(60)/1000
 
             # Logic
-            self.get_pos() ## TODOOOOO
+            self.get_mouse_pos()
             self.change_scroll()
-
-            # Vérifie si le joueur clique sur le "X"
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
-                
-                if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element in self.tool_bar_btns:
-                    btn = event.ui_element
-                    if not btn.is_selected:
-                        self.unselect_all_btns()
-                        btn.select()
-                        continue
-                    elif btn.is_selected:
-                        btn.unselect()
-                        continue
-                
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT:
-                        self.horizontal_scroll = -1
-                    if event.key == pygame.K_RIGHT:
-                        self.horizontal_scroll = 1
-                    if event.key == pygame.K_UP:
-                        self.vertical_scroll = -1
-                    if event.key == pygame.K_DOWN:
-                        self.vertical_scroll = 1
-                    if event.key == pygame.K_RSHIFT or event.key == pygame.K_LSHIFT:
-                        self.scroll_speed = 5
-
-                if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                        self.horizontal_scroll = 0
-                    if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
-                        self.vertical_scroll = 0
-                    if event.key == pygame.K_RSHIFT or event.key == pygame.K_LSHIFT:
-                        self.scroll_speed = 1
-
-                self.manager.process_events(event)
+            self.traiter_inputs()
 
             # Remplit le fond de couleur verte
             self.screen.fill(self.GREY)
 
-            # Dessine les tuiles            
-            for y, row in enumerate(self.world_data):
-                for x, tile in enumerate(row):
-                    if tile != 0:
-                        red_rect = pygame.Rect(x * self.TILE_SIZE - self.scrollx, y * self.TILE_SIZE - self.scrolly, self.TILE_SIZE, self.TILE_SIZE)
-                        pygame.draw.rect(self.screen, self.GREEN, red_rect)  
+            # Dessine les tuiles
+            self.change_tuiles()
+            self.draw_tuiles()            
 
             # Dessine la grille
             self.draw_grid()    
-            
-            #get mouse position
-            pos = pygame.mouse.get_pos()
-            x_pos = (pos[0] + self.scrollx) // self.TILE_SIZE
-            y_pos = (pos[1] + self.scrolly) // self.TILE_SIZE
-            print(f"({x} | {y})")
 
             # Dessine les éléments du GUI
-            pygame.draw.rect(self.screen, self.BLUE_GREY, (x_pos * self.TILE_SIZE - self.scrollx, y_pos * self.TILE_SIZE - self.scrolly, self.TILE_SIZE, self.TILE_SIZE))
-            self.draw_text(f"X: {int(x_pos)} | Y: {int(y_pos)}", self.font, self.WHITE, pos[0], pos[1]-self.TILE_SIZE/2) 
+            pygame.draw.rect(self.screen, self.BLUE_GREY, (self.x_pos * self.TILE_SIZE - self.scrollx, self.y_pos * self.TILE_SIZE - self.scrolly, self.TILE_SIZE, self.TILE_SIZE))
+            self.draw_text(f"X: {int(self.x_pos)} | Y: {int(self.y_pos)}", self.font, self.WHITE, self.pos[0], self.pos[1]-self.TILE_SIZE/2) 
 
             # Affiche le logo
             self.screen.blit(self.logo, (0, 0))    
@@ -143,6 +103,63 @@ class Circulab():
     
         pygame.quit()
     
+    def draw_tuiles(self):
+        """
+        Dessine les tuiles sur l'écran, en fonction de la
+        position actuelle du scroll.
+        """
+        for y, row in enumerate(self.world_data):
+                for x, tile in enumerate(row):
+                    if tile != 0:
+                        red_rect = pygame.Rect(x * self.TILE_SIZE - self.scrollx, y * self.TILE_SIZE - self.scrolly, self.TILE_SIZE, self.TILE_SIZE)
+                        pygame.draw.rect(self.screen, self.GREEN, red_rect)  
+
+    def traiter_inputs(self):
+        """
+        Vérifie si le joueur clique sur le "X" ou sur un bouton de la barre d'outils,
+        et met à jour les valeurs de horizontal_scroll et vertical_scroll en fonction
+        des touches de direction presses.
+
+        Si le joueur appuie sur Shift, le scroll est acceleré.
+        Si le joueur relache Shift, le scroll redevient normal.
+        """
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
+            
+            if event.type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element in self.tool_bar_btns:
+                btn = event.ui_element
+                if not btn.is_selected:
+                    self.unselect_all_btns()
+                    btn.select()
+                    continue
+                elif btn.is_selected:
+                    btn.unselect()
+                    continue
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    self.horizontal_scroll = -1
+                if event.key == pygame.K_RIGHT:
+                    self.horizontal_scroll = 1
+                if event.key == pygame.K_UP:
+                    self.vertical_scroll = -1
+                if event.key == pygame.K_DOWN:
+                    self.vertical_scroll = 1
+                if event.key == pygame.K_RSHIFT or event.key == pygame.K_LSHIFT:
+                    self.scroll_speed = 5
+
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                    self.horizontal_scroll = 0
+                if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
+                    self.vertical_scroll = 0
+                if event.key == pygame.K_RSHIFT or event.key == pygame.K_LSHIFT:
+                    self.scroll_speed = 1
+
+            self.manager.process_events(event)
+
     def change_scroll(self):
         #scroll la grip
         if self.horizontal_scroll == 1 and self.scrollx < (self.COLUMNS * self.TILE_SIZE) - self.WIDTH:
@@ -195,6 +212,22 @@ class Circulab():
         for c in range(self.ROWS + 1):
             pygame.draw.line(self.screen, self.WHITE, (0, c * self.TILE_SIZE - self.scrolly), (self.WIDTH, c * self.TILE_SIZE - self.scrolly))
 
+    def get_mouse_pos(self):
+        #get mouse position
+        self.pos = pygame.mouse.get_pos()
+        self.x_pos = (self.pos[0] + self.scrollx) // self.TILE_SIZE
+        self.y_pos = (self.pos[1] + self.scrolly) // self.TILE_SIZE
+        print(f"({self.x_pos} | {self.y_pos})")
+
+    def change_tuiles(self):
+        if self.pos[0] < self.WIDTH and self.TOOL_BAR_HEIGHT < self.pos[1] < self.HEIGHT:
+            self.y_pos = int(self.y_pos)
+            self.x_pos = int(self.x_pos)
+            if pygame.mouse.get_pressed()[0] == 1:
+                if self.world_data[self.y_pos][self.x_pos] != 1:
+                    self.world_data[self.y_pos][self.x_pos] = 1
+            if pygame.mouse.get_pressed()[2] == 1:
+                self.world_data[self.y_pos][self.x_pos] = 0
 
 game = Circulab()
 game.run()
