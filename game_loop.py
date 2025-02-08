@@ -22,6 +22,8 @@ class Circulab():
         self.WHITE = "#fcfffc"
         self.BLUE_GREY = "#77a6b6"
 
+        self.tiles_colors = ["green", "red", "blue", "yellow", "orange", "pink", "violet", "grey"]
+
         # Taille de la fenêtre
         self.HEIGHT = height
         self.WIDTH = width
@@ -111,8 +113,10 @@ class Circulab():
         for y, row in enumerate(self.world_data):
                 for x, tile in enumerate(row):
                     if tile != 0:
+                        bouton_actif = self.get_selected_btn()
+                        id_bouton_actif = bouton_actif.object_ids[-1]
                         red_rect = pygame.Rect(x * self.TILE_SIZE - self.scrollx, y * self.TILE_SIZE - self.scrolly, self.TILE_SIZE, self.TILE_SIZE)
-                        pygame.draw.rect(self.screen, self.GREEN, red_rect)  
+                        pygame.draw.rect(self.screen, self.tiles_colors[int(tile) - 1], red_rect)  
 
     def traiter_inputs(self):
         """
@@ -217,15 +221,28 @@ class Circulab():
         self.pos = pygame.mouse.get_pos()
         self.x_pos = (self.pos[0] + self.scrollx) // self.TILE_SIZE
         self.y_pos = (self.pos[1] + self.scrolly) // self.TILE_SIZE
-        print(f"({self.x_pos} | {self.y_pos})")
+        # print(f"({self.x_pos} | {self.y_pos})")
+
+    def get_selected_btn(self):
+        for btn in self.tool_bar_btns:
+            if  btn.is_selected:
+                return btn
 
     def change_tuiles(self):
         if self.pos[0] < self.WIDTH and self.TOOL_BAR_HEIGHT < self.pos[1] < self.HEIGHT:
             self.y_pos = int(self.y_pos)
             self.x_pos = int(self.x_pos)
+            try:
+                bouton_actif = self.get_selected_btn()
+                id_bouton_actif = bouton_actif.object_ids[-1]
+            except AttributeError:
+                pass
             if pygame.mouse.get_pressed()[0] == 1:
-                if self.world_data[self.y_pos][self.x_pos] != 1:
-                    self.world_data[self.y_pos][self.x_pos] = 1
+                try:
+                    if self.world_data[self.y_pos][self.x_pos] != id_bouton_actif[-1]:
+                        self.world_data[self.y_pos][self.x_pos] = id_bouton_actif[-1]
+                except UnboundLocalError:
+                    pass
             if pygame.mouse.get_pressed()[2] == 1:
                 self.world_data[self.y_pos][self.x_pos] = 0
 
