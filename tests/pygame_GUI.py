@@ -19,7 +19,7 @@ background.fill(pygame.Color('green'))
 # Charger le style du fichier JSON
 manager = pygame_gui.UIManager((WIDTH, HEIGHT), "styles.json")
 
-logo_img = pygame.image.load("road.png")
+logo_img = pygame.image.load("tests/road.png")
 
 # Test des différents éléments 
 hello_button = pygame_gui.elements.UIButton(
@@ -70,6 +70,11 @@ slider_2d = UI2DSlider(
     starting_height=0,
     container=container
 )
+
+new_save_window = NewSaveWindow(
+    rect=pygame.Rect((0, 0), (300, 300)),
+    manager=manager,
+    default_path="..")
 
 text_box_slider.set_active_effect(pygame_gui.TEXT_EFFECT_TYPING_APPEAR)
 

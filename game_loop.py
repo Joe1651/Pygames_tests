@@ -1,6 +1,7 @@
 import pygame
 import pygame_gui
 from tuile import Tuile
+from new_save_window import NewSaveWindow
 
 class Circulab():
     def __init__(self, height: int = 720, width: int = 1280):
@@ -54,6 +55,11 @@ class Circulab():
         self.tool_bar_btns = pygame.sprite.Group()
         self.draw_top_UI()
         self.draw_button_tool_bar()
+        self.new_save_window = NewSaveWindow(
+            rect=pygame.Rect((self.WIDTH/4, self.HEIGHT/6), (self.WIDTH/2, self.HEIGHT * 2/3)),
+            manager=self.manager,
+            default_path=".."
+            )
 
         # Horloge (pour les FPS)
         self.clock = pygame.time.Clock()
@@ -68,6 +74,7 @@ class Circulab():
         self.vertical_scroll = 0
         self.horizontal_scroll = 0
         self.build_orientation = 0
+        self.see_build_preview = True
         self.running = True
 
         # Position de la souris
@@ -104,8 +111,9 @@ class Circulab():
             self.draw_grid()    
 
             # Dessine les éléments du GUI
-            pygame.draw.rect(self.screen, self.BLUE_GREY, (self.x_pos * self.TILE_SIZE - self.scrollx, self.y_pos * self.TILE_SIZE - self.scrolly, self.TILE_SIZE, self.TILE_SIZE))
-            self.draw_text(f"X: {int(self.x_pos)} | Y: {int(self.y_pos)}", self.font, self.WHITE, self.pos[0], self.pos[1]-self.TILE_SIZE/2) 
+            if self.see_build_preview:
+                pygame.draw.rect(self.screen, self.BLUE_GREY, (self.x_pos * self.TILE_SIZE - self.scrollx, self.y_pos * self.TILE_SIZE - self.scrolly, self.TILE_SIZE, self.TILE_SIZE))
+                self.draw_text(f"X: {int(self.x_pos)} | Y: {int(self.y_pos)}", self.font, self.WHITE, self.pos[0], self.pos[1]-self.TILE_SIZE/2) 
 
             # Affiche le logo
             self.screen.blit(self.logo, (0, 0))    
@@ -165,6 +173,8 @@ class Circulab():
                     self.scroll_speed = 5
                 if event.key == pygame.K_r:
                     self.change_build_orientation()
+                if event.key == pygame.K_p:
+                    self.see_build_preview = not self.see_build_preview
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
