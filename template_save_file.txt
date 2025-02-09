@@ -1,0 +1,4 @@
+# Nom de la save
+# Nombre de colonnes, nombre de lignes
+# Scroll de la dernière session ( == None si N/A)
+# Liste des cases à tracer (avec Pickle)

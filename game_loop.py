@@ -11,6 +11,18 @@ class Circulab():
         # Load Images
         self.logo = pygame.image.load("logo.png")
 
+        # Load tiles images
+        self.empty_tile = pygame.image.load("assets/none.png")
+        self.black_tile = pygame.image.load("assets/black.png")
+        self.blue_tile = pygame.image.load("assets/blue.png")
+        self.green_tile = pygame.image.load("assets/green.png")
+        self.pink_tile = pygame.image.load("assets/pink.png")
+        self.red_tile = pygame.image.load("assets/red.png")
+        self.orange_tile = pygame.image.load("assets/orange.png")
+        self.yellow_tile = pygame.image.load("assets/yellow.png")
+        self.white_tile = pygame.image.load("assets/white_A.png")
+        self.tile_images = [self.empty_tile, self.black_tile, self.blue_tile, self.green_tile, self.pink_tile, self.red_tile, self.orange_tile, self.yellow_tile, self.white_tile]
+
         # Load Fonts
         self.font = pygame.font.Font("freesansbold.ttf", 32)
 
@@ -21,8 +33,6 @@ class Circulab():
         self.GREY = "#2d3a3a"
         self.WHITE = "#fcfffc"
         self.BLUE_GREY = "#77a6b6"
-
-        self.tiles_colors = ["green", "red", "blue", "yellow", "orange", "pink", "violet", "grey"]
 
         # Taille de la fenêtre
         self.HEIGHT = height
@@ -57,6 +67,7 @@ class Circulab():
         self.scroll_speed = 1
         self.vertical_scroll = 0
         self.horizontal_scroll = 0
+        self.build_orientation = 0
         self.running = True
 
         # Position de la souris
@@ -68,8 +79,9 @@ class Circulab():
         self.tuiles = pygame.sprite.Group()
         self.world_data = []
         for _ in range(self.ROWS):
-            r = [0] * self.COLUMNS
-            self.world_data.append(r)
+            new_tile = [Tuile(self.TILE_SIZE, self.empty_tile, sprite_group=self.tuiles, orientation=self.build_orientation)] * self.COLUMNS
+            self.world_data.append(new_tile)
+
     
     def run(self):
         while self.running:
@@ -112,11 +124,9 @@ class Circulab():
         """
         for y, row in enumerate(self.world_data):
                 for x, tile in enumerate(row):
-                    if tile != 0:
-                        bouton_actif = self.get_selected_btn()
-                        id_bouton_actif = bouton_actif.object_ids[-1]
-                        red_rect = pygame.Rect(x * self.TILE_SIZE - self.scrollx, y * self.TILE_SIZE - self.scrolly, self.TILE_SIZE, self.TILE_SIZE)
-                        pygame.draw.rect(self.screen, self.tiles_colors[int(tile) - 1], red_rect)  
+                    if tile.image != self.empty_tile:
+                        tile.rect = pygame.Rect(x * self.TILE_SIZE - self.scrollx, y * self.TILE_SIZE - self.scrolly, self.TILE_SIZE, self.TILE_SIZE)
+                        self.screen.blit(tile.image, tile.rect) 
 
     def traiter_inputs(self):
         """
@@ -153,6 +163,8 @@ class Circulab():
                     self.vertical_scroll = 1
                 if event.key == pygame.K_RSHIFT or event.key == pygame.K_LSHIFT:
                     self.scroll_speed = 5
+                if event.key == pygame.K_r:
+                    self.change_build_orientation()
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
@@ -197,7 +209,7 @@ class Circulab():
                         anchors={"centery": "centery"},
                         container=self.tool_bar_container,
                         object_id=pygame_gui.core.ObjectID(class_id="@tool_tip_btn", object_id=f"#tool_tip_btn_{i + 1}"))
-            
+
             self.tool_bar_btns.add(new_btn)
     
     def draw_text(self, text, font, text_col, x, y):
@@ -228,6 +240,11 @@ class Circulab():
             if  btn.is_selected:
                 return btn
 
+    def change_build_orientation(self):
+        self.build_orientation += 1
+        if self.build_orientation > 3:
+            self.build_orientation = 0
+
     def change_tuiles(self):
         if self.pos[0] < self.WIDTH and self.TOOL_BAR_HEIGHT < self.pos[1] < self.HEIGHT:
             self.y_pos = int(self.y_pos)
@@ -239,12 +256,12 @@ class Circulab():
                 pass
             if pygame.mouse.get_pressed()[0] == 1:
                 try:
-                    if self.world_data[self.y_pos][self.x_pos] != id_bouton_actif[-1]:
-                        self.world_data[self.y_pos][self.x_pos] = id_bouton_actif[-1]
+                    if self.world_data[self.y_pos][self.x_pos].image != self.tile_images[int(id_bouton_actif[-1])]:
+                        self.world_data[self.y_pos][self.x_pos] = Tuile(self.TILE_SIZE, self.tile_images[int(id_bouton_actif[-1])], sprite_group=self.tuiles, orientation=self.build_orientation)
                 except UnboundLocalError:
                     pass
             if pygame.mouse.get_pressed()[2] == 1:
-                self.world_data[self.y_pos][self.x_pos] = 0
+                self.world_data[self.y_pos][self.x_pos] = Tuile(self.TILE_SIZE, self.empty_tile, sprite_group=self.tuiles, orientation=self.build_orientation)
 
 game = Circulab()
 game.run()
