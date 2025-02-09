@@ -74,7 +74,7 @@ class Circulab():
         self.vertical_scroll = 0
         self.horizontal_scroll = 0
         self.build_orientation = 0
-        self.see_build_preview = True
+        self.see_build_preview = False
         self.running = True
 
         # Position de la souris

@@ -71,9 +71,35 @@ class NewSaveWindow(pygame_gui.elements.UIWindow):
             object_id=pygame_gui.core.ObjectID(class_id="@new_save_window", object_id="#name_label"))
 
         self.path_text_box = pygame_gui.elements.UITextEntryLine(
-            relative_rect=pygame.Rect((0, self.path_label.get_relative_rect().height + self.path_label.get_relative_rect().y), (self.window_container.get_relative_rect().width * 27/32, 50)),
+            relative_rect=pygame.Rect((-self.window_container.get_relative_rect().width/16, self.path_label.get_relative_rect().height + self.path_label.get_relative_rect().y), (self.window_container.get_relative_rect().width * 23/32, 50)),
             manager=manager,
             container=self.window_container,
             object_id=pygame_gui.core.ObjectID(class_id="@new_save_window", object_id="#name_text_box"),
             anchors={"centerx": "centerx"},
+        )
+
+        self.file_explorer_btn = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect((self.path_text_box.get_relative_rect().width + self.window_container.get_relative_rect().width/16, self.path_text_box.get_relative_rect().y), (self.window_container.get_relative_rect().width/8, 50)),
+            text="...",
+            manager=manager,
+            container=self.window_container,
+            object_id=pygame_gui.core.ObjectID(class_id="@new_save_window", object_id="#file_explorer_btn")
+        )
+
+        self.save_btn = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect((-self.window_container.get_relative_rect().width/4, self.path_text_box.get_relative_rect().y + self.path_text_box.get_relative_rect().height * 2), (self.window_container.get_relative_rect().width/4, 50)),
+            text="Créer",
+            manager=manager,
+            container=self.window_container,
+            object_id=pygame_gui.core.ObjectID(class_id="@new_save_window", object_id="#save_btn"),
+            anchors={"centerx": "centerx"}
+        )
+
+        self.cancel_btn = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect((self.window_container.get_relative_rect().width/4, self.path_text_box.get_relative_rect().y + self.path_text_box.get_relative_rect().height * 2), (self.window_container.get_relative_rect().width/4, 50)),
+            text="Annuler",
+            manager=manager,
+            container=self.window_container,
+            object_id=pygame_gui.core.ObjectID(class_id="@new_save_window", object_id="#cancel_btn"),
+            anchors={"centerx": "centerx"}
         )
